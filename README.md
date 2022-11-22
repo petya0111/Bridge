@@ -1,13 +1,45 @@
-# Sample Hardhat Project
+# Bridge Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project demonstrates a Bridge contracts. 
 
-Try running some of the following tasks:
+<!-- > **_NOTE:_**  Contract is already deployed in  testnet-->
+
+## Execute tasks for local setup
+
+Install the dependencies
 
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
+npm install
+```
+
+Compile the contracts
+```shell
+npx hardhat compile
+```
+
+Run local network with test accounts
+```shell
 npx hardhat node
-npx hardhat run scripts/deploy.js
+```
+
+Run tests with high coverage. Unit tests are typically run on hardhat networks or ganache.
+```shell
+npm run test
+```
+
+Run tests coverage. 
+```shell
+npm run coverage
+```
+
+#### Create .env file with keys from .env.example. 
+
+Deploying on testnet networks
+```shell
+npx hardhat deploy-testnets --network goerli
+```
+
+Deploying on mainnet networks
+```shell
+npx hardhat deploy-mainnet --private-key 0x
 ```
