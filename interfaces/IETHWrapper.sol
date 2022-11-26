@@ -2,7 +2,9 @@
 pragma solidity ^0.8.0;
 
 interface IETHWrapper {
-    function wrap() external payable;
+    function initiateToken(string memory _name, string memory _symbol) external;
 
-    function unwrap(uint value) external payable;
+    function wrap(address tokenAddress) external payable;
+
+    function unwrap(address tokenAddress, uint256 value) external payable;
 }

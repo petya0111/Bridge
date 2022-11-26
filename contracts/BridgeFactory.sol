@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./TokenBase.sol";
+import "./ETHWrapper.sol";
 import "../interfaces/IBridgeBase.sol";
 
 contract BridgeBase is IBridgeBase {
-    TokenBaseContract public token;
+    ETHWrapperContract public token;
     uint256 public chainId;
     // depositCounts - counts number of deposits that we have, to not repeat the same deposit twice
     mapping(uint256 => uint256) public depositCounts;
@@ -17,8 +17,8 @@ contract BridgeBase is IBridgeBase {
     // processedNonces - count on each chain, how many transactions we have to not repeat them
     mapping(address => mapping(uint => bool)) public processedNonces;
 
-    constructor(address _token) {
-        token = TokenBaseContract(_token);
+    constructor(address _ethWrapperContract) {
+        token = ETHWrapperContract(_ethWrapperContract);
         chainId = block.chainid;
     }
 
@@ -46,7 +46,7 @@ contract BridgeBase is IBridgeBase {
     ) external override {}
 
     function claim(
-        address token,
+        address _token,
         address from,
         address to
     ) external override {}
