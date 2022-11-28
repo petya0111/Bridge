@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
 import "../interfaces/IETHWrapper.sol";
 import "./ERC20Token.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -7,10 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ETHWrapperContract is Ownable, IETHWrapper {
     mapping(address => ERC20Token) private wTokenContracts;
 
-    event LogETHWrapped(address sender, uint256 amount);
-    event LogETHUnwrapped(address sender, uint256 amount);
     event LogETHApproved(address spender, uint256 amount);
-    event LogETHTokenCreated(address indexed contractAddr, string name, string symbol);
+    event LogETHTokenCreated(
+        address indexed contractAddr,
+        string name,
+        string symbol
+    );
+    event LogWTokenMinted(address to, uint256 amount);
 
     function initiateToken(string memory _name, string memory _symbol)
         external
@@ -30,34 +33,12 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
         return wTokenContracts[token];
     }
 
-    function wrap(address tokenAddress) public payable override {
-        require(msg.value > 0, "We need to wrap at least 1 WETH");
-        wTokenContracts[tokenAddress].mint(msg.sender, msg.value);
-        emit LogETHWrapped(msg.sender, msg.value);
-    }
-
     function approve(
         address tokenAddress,
         address spender,
         uint256 amount
-    ) public {
+    ) public override {
         wTokenContracts[tokenAddress].approve(spender, amount);
         emit LogETHApproved(spender, amount);
-    }
-
-    function unwrap(address tokenAddress, uint256 value)
-        public
-        payable
-        override
-    {
-        require(value > 0, "We need to unwrap at least 1 WETH");
-        wTokenContracts[tokenAddress].transferFrom(
-            msg.sender,
-            address(this),
-            value
-        );
-        wTokenContracts[tokenAddress].burn(value);
-        payable(msg.sender).transfer(value);
-        emit LogETHUnwrapped(msg.sender, value);
     }
 }

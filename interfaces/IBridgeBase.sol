@@ -1,34 +1,27 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+pragma solidity ^0.8.4;
 
 interface IBridgeBase {
-    function lock(
-        address to,
-        uint amount,
-        uint nonce,
-        bytes calldata signature
+    function lockToken(
+        uint16 _targetChainId,
+        address payable _token,
+        uint256 _amount
+    ) external payable;
+
+    function mint(
+        address _receiver,
+        uint256 _amount,
+        address payable _wrappedToken
     ) external;
 
     function burn(
-        address to,
-        uint amount,
-        uint nonce,
-        bytes calldata signature
-    ) external;
+        uint16 _targetChainId,
+        address _wrappedToken,
+        uint256 _amount
+    ) external payable;
 
-    function claim(
-        address token,
-        address from,
-        address to
-    ) external;
+    function release(uint256 _amount, address payable _token) external;
 
-    function mint(
-        address from,
-        address to,
-        uint amount,
-        uint nonce,
-        bytes calldata signature
-    ) external;
+    function createToken(string calldata _name, string calldata _symbol)
+        external;
 }
