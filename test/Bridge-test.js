@@ -79,17 +79,60 @@ const { developmentChains } = require("../hardhat.config");
                   })
               ).to.be.revertedWith("Bridged amount is required.");
 
-              await erc20Token.approve(bridge.address, TOKEN_AMOUNT);
-              await erc20Token.increaseAllowance(bridge.address, TOKEN_AMOUNT);
+              await ethWrapper.approve(
+                  wBridgeToken,
+                  bridge.address,
+                  TOKEN_AMOUNT
+              );
               expect(
-                  bridge.lockToken(5, erc20Token.address, serviceFee, {
+                  bridge.lockToken(5, wBridgeToken, serviceFee, {
                       value: serviceFee,
                   })
               ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
           });
+
           it("Should mint token with provided service fee", async () => {
               expect(
                   await bridge.mint(admin.address, TOKEN_AMOUNT, wBridgeToken)
               ).to.emit("LogMint");
+          });
+
+          it("Should fail wrong input on burn function", async () => {
+              expect(
+                  bridge.burn(5, ethers.constants.AddressZero, 0)
+              ).to.be.revertedWith("Burnt amount is required.");
+              expect(
+                  bridge.burn(5, ethers.constants.AddressZero, TOKEN_AMOUNT)
+              ).to.be.revertedWith("Not enough service fee");
+              expect(
+                  bridge.burn(5, ethers.constants.AddressZero, TOKEN_AMOUNT, {
+                      value: serviceFee,
+                  })
+              ).to.be.revertedWith("Wrapped Token is not existing");
+          });
+
+          it("Should burn token with provided service fee", async () => {
+              await ethWrapper.approve(
+                  wBridgeToken,
+                  bridge.address,
+                  TOKEN_AMOUNT
+              );
+
+              expect(
+                  bridge.burn(5, wBridgeToken, TOKEN_AMOUNT, {
+                      value: serviceFee,
+                  })
+              ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+          });
+          
+          it("Should release the token", async () => {
+              await ethWrapper.approve(
+                  wBridgeToken,
+                  bridge.address,
+                  TOKEN_AMOUNT
+              );
+              expect(
+                  bridge.release(TOKEN_AMOUNT, wBridgeToken)
+              ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
           });
       });
