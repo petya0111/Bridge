@@ -4,10 +4,12 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../interfaces/ITokenBase.sol";
 
-contract ERC20Token is ERC20, ERC20Burnable, Ownable {
+contract ERC20Token is ITokenBase, ERC20, ERC20Burnable, Ownable {
     event LogERC20Minted(address to, uint256 amount);
     event LogERC20TransferedOwnership(address owner);
+    event LogERC20Approved(address spender, uint256 amount);
 
     constructor(
         string memory _name,
@@ -18,8 +20,9 @@ contract ERC20Token is ERC20, ERC20Burnable, Ownable {
         emit LogERC20TransferedOwnership(_owner);
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
+    function mint(address to, uint256 amount) public onlyOwner override{
         _mint(to, amount);
         emit LogERC20Minted(to, amount);
     }
+    
 }

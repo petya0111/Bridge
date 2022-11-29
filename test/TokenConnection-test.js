@@ -4,7 +4,7 @@ const { developmentChains } = require("../hardhat.config");
 
 !developmentChains.includes(network.name)
     ? describe.skip
-    : describe("TokenConnectionsAcrossNetowrksTest", function () {
+    : describe("TokenLedger", function () {
           let tokConn;
           let admin;
           let user1;

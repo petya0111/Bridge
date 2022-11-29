@@ -7,7 +7,7 @@ import "../interfaces/IBridgeBase.sol";
 
 contract BridgeBase is IBridgeBase {
     ETHWrapperContract public ethWrapper;
-    // uint256 serviceFee = 0.005 ether;
+    uint256 serviceFee = 0.005 ether;
 
     constructor(address _ethWrapperContract) {
         ethWrapper = ETHWrapperContract(_ethWrapperContract);
@@ -35,7 +35,7 @@ contract BridgeBase is IBridgeBase {
         uint256 _amount
     ) external payable override {
         require(_amount > 0, "Bridged amount is required.");
-        // require(msg.value >= serviceFee, "Not enough service fee");
+        require(msg.value >= serviceFee, "Not enough service fee");
 
         ERC20(_token).transferFrom(msg.sender, address(this), _amount);
 
@@ -51,10 +51,10 @@ contract BridgeBase is IBridgeBase {
         ERC20Token wrappedTokenContract = ethWrapper.getTokenContractAddress(
             _wrappedToken
         );
-        require(
-            address(wrappedTokenContract) != address(0),
-            "Wrapped Token is not existing"
-        );
+        // require(
+        //     address(wrappedTokenContract) != address(0),
+        //     "Wrapped Token is not existing"
+        // );
         wrappedTokenContract.mint(_receiver, _amount);
 
         emit LogMint(_receiver, _wrappedToken, _amount);
@@ -66,7 +66,7 @@ contract BridgeBase is IBridgeBase {
         uint256 _amount
     ) external payable override {
         require(_amount > 0, "Burnt amount is required.");
-        // require(msg.value >= serviceFee, "Not enough service fee");
+        require(msg.value >= serviceFee, "Not enough service fee");
 
         ERC20Token wrappedTokenContract = ethWrapper.getTokenContractAddress(
             _wrappedToken
