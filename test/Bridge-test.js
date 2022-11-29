@@ -7,7 +7,7 @@ const { developmentChains } = require("../hardhat.config");
     : describe("BridgeTest", function () {
           let bridge;
           let ethWrapper;
-          let ethWrapperAdmin;
+          let wBridgeToken;
           let erc20Token;
           let admin;
           const serviceFee = ethers.utils.parseEther("0.006");
@@ -21,14 +21,6 @@ const { developmentChains } = require("../hardhat.config");
               ethWrapper = await ethWrapperFactory.deploy();
               await ethWrapper.deployed({
                   from: owner,
-              });
-
-              let ethWrapperF = await ethers.getContractFactory(
-                  "ETHWrapperContract"
-              );
-              ethWrapperAdmin = await ethWrapperF.deploy();
-              await ethWrapperAdmin.deployed({
-                  from: admin,
               });
 
               let bridgeFactory = await ethers.getContractFactory("BridgeBase");
@@ -58,6 +50,7 @@ const { developmentChains } = require("../hardhat.config");
               wrappedErc20Token = ethers.utils.hexStripZeros(
                   receipt.events[0].address
               );
+              wBridgeToken = wrappedErc20Token;
           });
 
           it("Should reject locking token, not enough service fee", async () => {
@@ -73,8 +66,6 @@ const { developmentChains } = require("../hardhat.config");
               ).to.be.revertedWith("Bridged amount is required.");
           });
           it("Should lock token with provided service fee", async () => {
-              await erc20Token.approve(bridge.address, TOKEN_AMOUNT);
-              await erc20Token.increaseAllowance(bridge.address, TOKEN_AMOUNT);
               //   const lockTx = await bridge.lockToken(
               //       5,
               //       erc20Token.address,
@@ -83,28 +74,22 @@ const { developmentChains } = require("../hardhat.config");
               //   lockTx.wait();
               //   expect(lockTx).to.emit(bridge, "LogLock");
               expect(
-                  bridge.lockToken(5, erc20Token.address, TOKEN_AMOUNT, {
+                  bridge.lockToken(5, erc20Token.address, 0, {
+                      value: serviceFee,
+                  })
+              ).to.be.revertedWith("Bridged amount is required.");
+
+              await erc20Token.approve(bridge.address, TOKEN_AMOUNT);
+              await erc20Token.increaseAllowance(bridge.address, TOKEN_AMOUNT);
+              expect(
+                  bridge.lockToken(5, erc20Token.address, serviceFee, {
                       value: serviceFee,
                   })
               ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
           });
           it("Should mint token with provided service fee", async () => {
-              let token = await ethWrapperAdmin
-                  .initiateToken("WrappedTokenBridge", "WTB");
-              const receipt = await token.wait();
-              const tkAddr = ethers.utils.hexStripZeros(
-                  receipt.events.filter(
-                      (e) => e.event == "LogETHTokenCreated"
-                  )[0].topics[1]
-              );
-              await ethWrapperAdmin.approve(tkAddr, admin.address, TOKEN_AMOUNT);
-            //   const mintTx = await bridge
-            //       .mint(admin.address, TOKEN_AMOUNT, tkAddr);
-            //   mintTx.wait();
-            //   expect(mintTx).to.emit(bridge, "LogMint");
               expect(
-                bridge
-                  .mint(admin.address, TOKEN_AMOUNT, tkAddr)
-            ).to.be.revertedWith("Error: Transaction reverted: function call to a non-contract account");
+                  await bridge.mint(admin.address, TOKEN_AMOUNT, wBridgeToken)
+              ).to.emit("LogMint");
           });
       });

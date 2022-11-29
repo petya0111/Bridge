@@ -22,7 +22,21 @@ const { developmentChains } = require("../hardhat.config");
                   from: owner,
               });
           });
+          it("Should reject zero address input data", async () => {
+              const zero_address = ethers.constants.AddressZero;
+              const targetWToken = user1.address;
+              expect(
+                  tokConn
+                      .connect(user2)
+                      .registerTargetTokenAddress(zero_address, 5, targetWToken)
+              ).to.be.rejectedWith("Invalid source address");
 
+              expect(
+                  tokConn
+                      .connect(user2)
+                      .registerTargetTokenAddress(targetWToken, 5, zero_address)
+              ).to.be.rejectedWith("Invalid target address");
+          });
           it("Should connect tokens", async () => {
               const sourceToken = admin.address;
               const targetWToken = user1.address;
@@ -31,7 +45,9 @@ const { developmentChains } = require("../hardhat.config");
                       .connect(user2)
                       .registerTargetTokenAddress(sourceToken, 5, targetWToken)
               ).to.emit(tokConn, "TokenConnectionRegistered");
-              expect(await tokConn.getTargetTokenAddress(sourceToken,5)).to.equal(targetWToken);
-            //   expect(await tokConn.getSourceTokenAddress(targetWToken,1)).to.equal(sourceToken);
+              expect(
+                  await tokConn.getTargetTokenAddress(sourceToken, 5)
+              ).to.equal(targetWToken);
+                expect(await tokConn.getSourceTokenAddress(targetWToken,5)).to.equal(ethers.constants.AddressZero);
           });
       });
