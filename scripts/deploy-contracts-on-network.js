@@ -25,7 +25,7 @@ async function deployContractsOnNetwork(_privateKey) {
 
     await hre.run("print", {
         message:
-            "Deployed ETHWrapperContract on contract address: " +
+            "Deployed ERC20TokenContract on contract address: " +
             ERC20TokenContract.address,
     });
 
@@ -40,6 +40,19 @@ async function deployContractsOnNetwork(_privateKey) {
         message:
             "Deployed ETHWrapperContract on contract address: " +
             ETHWrapperContract.address,
+    });
+
+    const TokenLedger = await ethers.getContractFactory("TokenLedger");
+    const TokenLedgerContract = await TokenLedger.deploy();
+    await hre.run("print", {
+        message: "Waiting for TokenLedgerContract deployment...",
+    });
+    await TokenLedgerContract.deployed();
+
+    await hre.run("print", {
+        message:
+            "Deployed TokenLedgerContract on contract address: " +
+            TokenLedgerContract.address,
     });
 
     const Bridge = await ethers.getContractFactory("BridgeBase");
@@ -68,12 +81,16 @@ async function deployContractsOnNetwork(_privateKey) {
         constructorArguments: [],
     });
     await hre.run("verify:verify", {
+        address: TokenLedgerContract.address,
+        constructorArguments: [],
+    });
+    await hre.run("verify:verify", {
         address: ERC20Token.address,
-        constructorArguments: ["LimeERC", "LRC"],
+        constructorArguments: ["LimeERC", "LRC", deployer.address],
     });
     await hre.run("verify:verify", {
         address: BridgeContract.address,
-        constructorArguments: [],
+        constructorArguments: [ETHWrapperContract.address],
     });
 
     await hre.run("print", { message: "Verified." });
