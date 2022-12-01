@@ -89,7 +89,7 @@ const startClaimationTokenProcedure = async (
     );
     const [owner, addr1] = await ethers.getSigners();
     const validatorWallet = new ethers.Wallet(
-        process.env.VALIDATOR_PRIVATE_KEY,
+        process.env.VALIDATOR_GOERLI_PRIVATE_KEY,
         targetBridgeProvider
     );
     const tx = await targetBridgeContract

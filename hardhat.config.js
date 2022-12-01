@@ -34,12 +34,12 @@ module.exports = {
         goerli: {
             url: "https://eth-goerli.g.alchemy.com/v2/cSdN5NKZvLG6YDW9cXYHf_oKbeUywY7_",
             chainId: 5,
-            accounts: [process.env.PRIVATE_KEY],
+            accounts: [process.env.DEPLOYER_GOERLI_PRIVATE_KEY],
         },
         mumbai: {
           url: "https://matic-mumbai.chainstacklabs.com",
           chainId: 80001,
-          accounts: [process.env.PRIVATE_KEY],
+          accounts: [process.env.DEPLOYER_MUMBAI_PRIVATE_KEY],
         }
     },
     etherscan: {
