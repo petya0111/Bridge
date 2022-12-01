@@ -10,7 +10,7 @@ task("deploy-testnets", "Deploys contract on a provided network")
 );
 task("run-validator", "Runs validator listening to the events from source chain").setAction(
     async () => {
-        const runValidatorScript = require("../scripts/deploy.js");
+        const runValidatorScript = require("../scripts/run-validator.js");
         await runValidatorScript();
     }
 );

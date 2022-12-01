@@ -2,32 +2,30 @@ const { ethers, network } = require("hardhat");
 const { developmentChains } = require("../hardhat.config");
 require("dotenv").config();
 const { Web3 } = require("web3");
-const {
-    BridgeABI,
-} = require("../artifacts/contracts/BridgeFactory.sol/BridgeBase.json");
-const {
-    ERC20ABI,
-} = require("../artifacts/contracts/ERC20Token.sol/ERC20Token.json");
-const {
-    WETHABI,
-} = require("../artifacts/contracts/ETHWrapper.sol/ETHWrapperContract.json");
-const {
-    TLedgerABI,
-} = require("../artifacts/contracts/TokenLedger.sol/TokenLedger.json");
+const { BridgeABI } = require("../abis/BridgeBase.json");
+const { ERC20ABI } = require("../abis/ERC20Token.json");
+const { WETHABI } = require("../abis/ETHWrapper.json");
+const { TLedgerABI } = require("../abis/TokenLedger.json");
 bridgeSourceChain = "0x";
 bridgeTargetChain = "0x";
+sourceChain = process.env.GOERLI_URL;
+tagetChain = process.env.MUMBAI_URL;
+let bridgeContracts = new Map();
 
-// const goerliSourceChain = new Web3(process.env.GOERLI_URL);
-const bridgeContractTargetChain = new providerChainA.eth.Contract(
-    BridgeABI.abi,
-    bridgeSourceChain
+const bridgeContractSourceChain = new ethers.Contract(
+    bridgeTargetChain,
+    BridgeABI,
+    new ethers.providers.JsonRpcProvider(sourceChain)
 );
-bridges.set(chainIdA, bridgeContractChainA);
 
-const bridgeContractSourceChain = new providerChainB.eth.Contract(
-    BridgeABI.abi,
-    bridgeSourceChain
+const bridgeContractTargetChain = new ethers.Contract(
+    bridgeSourceChain,
+    BridgeABI,
+    new ethers.providers.JsonRpcProvider(targetChainId)
 );
+
+bridgeContracts.set(sourceChain, bridgeContractSourceChain);
+bridgeContracts.set(tagetChain, bridgeContractTargetChain);
 
 async function main() {
     console.log("start");
@@ -75,11 +73,7 @@ const startClaimationTokenProcedure = async (
     event,
     providerChainA
 ) => {
-    const tokenContract = new ethers.Contract(
-        tokenAddress,
-        ERC20.abi,
-        provider
-    );
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20, provider);
     const tokenName = await tokenContract.name();
     const tokenSymbol = await tokenContract.symbol();
 

@@ -36,10 +36,11 @@ npm run coverage
 
 Deploying on testnet networks
 ```shell
-npx hardhat deploy-testnets --network goerli
+npx hardhat deploy-testnets --network goerli --private-key=0x
 ```
 
-Deploying on mainnet networks
+Run validator script
 ```shell
-npx hardhat deploy-mainnet --private-key 0x
+npx hardhat run-validator
 ```
+
