@@ -66,23 +66,31 @@ const { developmentChains } = require("../hardhat.config");
               ).to.be.revertedWith("Bridged amount is required.");
           });
           it("Should lock token with provided service fee", async () => {
-              //   const lockTx = await bridge.lockToken(
-              //       5,
-              //       erc20Token.address,
-              //       TOKEN_AMOUNT
-              //   );
-              //   lockTx.wait();
-              //   expect(lockTx).to.emit(bridge, "LogLock");
-              expect(
-                  bridge.lockToken(5, erc20Token.address, 0, {
-                      value: serviceFee,
-                  })
-              ).to.be.revertedWith("Bridged amount is required.");
+              const balanceOf = await ethWrapper.balanceOf(
+                  wBridgeToken,
+                  bridge.address
+              );
+              console.log(balanceOf);
               await ethWrapper
                   .connect(admin)
                   .approve(wBridgeToken, bridge.address, TOKEN_AMOUNT);
+              await ethWrapper
+                  .connect(admin)
+                  .increaseAllowance(
+                      wBridgeToken,
+                      bridge.address,
+                      TOKEN_AMOUNT
+                  );
               expect(
-                  bridge
+                  bridge.lockToken(5, wBridgeToken, 0, {
+                      value: serviceFee,
+                  })
+              ).to.be.revertedWith("Bridged amount is required.");
+              // account balance
+              // transfer
+              // to have allowance
+              expect(
+                   bridge
                       .connect(admin)
                       .lockToken(5, wBridgeToken, TOKEN_AMOUNT, {
                           value: serviceFee,
@@ -116,6 +124,11 @@ const { developmentChains } = require("../hardhat.config");
                   bridge.address,
                   TOKEN_AMOUNT
               );
+              //   await ethWrapper.transfer(
+              //       wBridgeToken,
+              //       bridge.address,
+              //       TOKEN_AMOUNT
+              //   );
 
               expect(
                   bridge.burn(5, wBridgeToken, TOKEN_AMOUNT, {
@@ -125,11 +138,8 @@ const { developmentChains } = require("../hardhat.config");
           });
 
           it("Should release the token", async () => {
-              await ethWrapper.approve(
-                  wBridgeToken,
-                  bridge.address,
-                  TOKEN_AMOUNT
-              );
+              ethWrapper.approve(wBridgeToken, bridge.address, TOKEN_AMOUNT);
+
               expect(
                   bridge.release(TOKEN_AMOUNT, wBridgeToken)
               ).to.be.revertedWith("ERC20: transfer amount exceeds balance");

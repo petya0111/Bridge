@@ -26,9 +26,10 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
         onlyOwner
         returns (ERC20Token wrappedToken)
     {
-        ERC20Token wContract = new ERC20Token(_name, _symbol, msg.sender);
-        wTokenContracts[address(wContract)] = wContract;
-        emit LogETHTokenCreated(address(wContract), _name, _symbol);
+        ERC20Token ercToken = new ERC20Token(_name, _symbol, msg.sender);
+        wTokenContracts[address(ercToken)] = ercToken;
+        emit LogETHTokenCreated(address(ercToken), _name, _symbol);
+        return ercToken;
     }
 
     function getTokenContractAddress(address token)
@@ -54,5 +55,17 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
     ) external override {
         savedTokens[sourceTokenAddress] = currentTokenAddress;
         emit LogETHRegistered(sourceTokenAddress, currentTokenAddress);
+    }
+
+    function balanceOf(address tokenAddress, address owner) public view returns (uint){
+       return wTokenContracts[tokenAddress].balanceOf(owner);
+    }
+
+    function increaseAllowance(
+        address tokenAddress,
+        address spender,
+        uint256 addedValue
+    ) public {
+        wTokenContracts[tokenAddress].increaseAllowance(spender, addedValue);
     }
 }
