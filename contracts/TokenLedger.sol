@@ -3,15 +3,10 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITokenLedger.sol";
 
-contract TokenLedger is
-    Ownable,
-    ITokenLedger
-{
+contract TokenLedger is Ownable, ITokenLedger {
     uint16 private sourceChainId;
-    mapping(address => mapping(uint16 => address))
-        private sourceTokenToTargetToken;
-    mapping(address => mapping(uint16 => address))
-        private targetTokenToSourceToken;
+    mapping(address => mapping(uint16 => address)) private sourceTokenToTargetToken;
+    mapping(address => mapping(uint16 => address)) private targetTokenToSourceToken;
 
     event TokenConnectionRegistered(
         address indexed sourceToken,

@@ -4,10 +4,13 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ETHWrapper.sol";
 import "../interfaces/IBridgeBase.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract BridgeBase is IBridgeBase {
+contract BridgeBase is IBridgeBase, Ownable {
     ETHWrapperContract public ethWrapper;
     uint256 serviceFee = 0.005 ether;
+    mapping(address => mapping(address => uint256))
+        public setTokensForClaimMapping;
 
     constructor(address _ethWrapperContract) {
         ethWrapper = ETHWrapperContract(_ethWrapperContract);
@@ -27,6 +30,12 @@ contract BridgeBase is IBridgeBase {
         uint256 amount
     );
     event LogRelease(address indexed receiver, address token, uint256 amount);
+    event LogTokenClaimRegistered(
+        address sourceERCToken,
+        address indexed targetWToken,
+        uint256 amount,
+        address to
+    );
 
     // needs to be executed another approve transaction in order to lock the token
     function lockToken(
@@ -94,5 +103,27 @@ contract BridgeBase is IBridgeBase {
         override
     {
         ethWrapper.initiateToken(_name, _symbol);
+    }
+
+    function setTokensForClaim(
+        address to,
+        address sourceToken,
+        string calldata sourceTokenName,
+        string calldata sourceTokenSymbol,
+        uint256 amount
+    ) external {
+        address tokenAddress = ethWrapper.savedTokens(sourceToken);
+
+        if (tokenAddress == address(0)) {
+            ERC20Token wrappedToken = ethWrapper.initiateToken(
+                sourceTokenName,
+                sourceTokenSymbol
+            );
+            ethWrapper.registerToken(sourceToken, address(wrappedToken));
+            tokenAddress = address(wrappedToken);
+        }
+
+        setTokensForClaimMapping[to][tokenAddress] = amount;
+        emit LogTokenClaimRegistered(sourceToken, tokenAddress, amount, to);
     }
 }

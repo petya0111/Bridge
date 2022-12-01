@@ -78,17 +78,16 @@ const { developmentChains } = require("../hardhat.config");
                       value: serviceFee,
                   })
               ).to.be.revertedWith("Bridged amount is required.");
-
-              await ethWrapper.approve(
-                  wBridgeToken,
-                  bridge.address,
-                  TOKEN_AMOUNT
-              );
+              await ethWrapper
+                  .connect(admin)
+                  .approve(wBridgeToken, bridge.address, TOKEN_AMOUNT);
               expect(
-                  bridge.lockToken(5, wBridgeToken, serviceFee, {
-                      value: serviceFee,
-                  })
-              ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+                  bridge
+                      .connect(admin)
+                      .lockToken(5, wBridgeToken, TOKEN_AMOUNT, {
+                          value: serviceFee,
+                      })
+              ).to.be.revertedWith("ERC20: insufficient allowance");
           });
 
           it("Should mint token with provided service fee", async () => {
@@ -124,7 +123,7 @@ const { developmentChains } = require("../hardhat.config");
                   })
               ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
           });
-          
+
           it("Should release the token", async () => {
               await ethWrapper.approve(
                   wBridgeToken,
@@ -134,5 +133,26 @@ const { developmentChains } = require("../hardhat.config");
               expect(
                   bridge.release(TOKEN_AMOUNT, wBridgeToken)
               ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+          });
+
+          it("Should register token for claim", async () => {
+              expect(
+                  await bridge.setTokensForClaim(
+                      admin.address,
+                      erc20Token.address,
+                      "WrappedERC",
+                      "WERC",
+                      TOKEN_AMOUNT
+                  )
+              ).to.emit("LogTokenClaimRegistered");
+              expect(
+                  await bridge.setTokensForClaim(
+                      admin.address,
+                      erc20Token.address,
+                      "WrappedERC",
+                      "WERC",
+                      TOKEN_AMOUNT
+                  )
+              ).to.emit("LogTokenClaimRegistered");
           });
       });

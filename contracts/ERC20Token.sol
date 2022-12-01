@@ -20,9 +20,8 @@ contract ERC20Token is ITokenBase, ERC20, ERC20Burnable, Ownable {
         emit LogERC20TransferedOwnership(_owner);
     }
 
-    function mint(address to, uint256 amount) public onlyOwner override{
+    function mint(address to, uint256 amount) public override onlyOwner {
         _mint(to, amount);
         emit LogERC20Minted(to, amount);
     }
-    
 }

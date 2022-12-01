@@ -6,8 +6,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ETHWrapperContract is Ownable, IETHWrapper {
     mapping(address => ERC20Token) private wTokenContracts;
+    mapping(address => address) public savedTokens;
 
     event LogETHApproved(address spender, uint256 amount);
+    event LogETHRegistered(
+        address sourceTokenAddress,
+        address currentTokenAddress
+    );
     event LogETHTokenCreated(
         address indexed contractAddr,
         string name,
@@ -19,6 +24,7 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
         external
         override
         onlyOwner
+        returns (ERC20Token wrappedToken)
     {
         ERC20Token wContract = new ERC20Token(_name, _symbol, msg.sender);
         wTokenContracts[address(wContract)] = wContract;
@@ -40,5 +46,13 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
     ) public override {
         wTokenContracts[tokenAddress].approve(spender, amount);
         emit LogETHApproved(spender, amount);
+    }
+
+    function registerToken(
+        address sourceTokenAddress,
+        address currentTokenAddress
+    ) external override {
+        savedTokens[sourceTokenAddress] = currentTokenAddress;
+        emit LogETHRegistered(sourceTokenAddress, currentTokenAddress);
     }
 }

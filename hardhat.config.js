@@ -33,6 +33,7 @@ module.exports = {
         },
         goerli: {
             url: "https://eth-goerli.g.alchemy.com/v2/cSdN5NKZvLG6YDW9cXYHf_oKbeUywY7_",
+            chainId: 5,
             accounts: [process.env.PRIVATE_KEY],
         },
         mumbai: {
