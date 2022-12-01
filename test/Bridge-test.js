@@ -145,10 +145,24 @@ const { developmentChains } = require("../hardhat.config");
                       TOKEN_AMOUNT
                   )
               ).to.emit("LogTokenClaimRegistered");
+              let token = await bridge.setTokensForClaim(
+                  admin.address,
+                  erc20Token.address,
+                  "WrappedERC",
+                  "WERC",
+                  TOKEN_AMOUNT
+              );
+              const receipt = await token.wait();
+              expect(token).to.emit("LogTokenClaimRegistered");
+              const tkAddr = ethers.utils.hexStripZeros(
+                  receipt.events.filter(
+                      (e) => e.event == "LogTokenClaimRegistered"
+                  )[0].topics[1]
+              );
               expect(
                   await bridge.setTokensForClaim(
                       admin.address,
-                      erc20Token.address,
+                      tkAddr,
                       "WrappedERC",
                       "WERC",
                       TOKEN_AMOUNT

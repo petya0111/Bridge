@@ -31,7 +31,7 @@ contract BridgeBase is IBridgeBase, Ownable {
     );
     event LogRelease(address indexed receiver, address token, uint256 amount);
     event LogTokenClaimRegistered(
-        address sourceERCToken,
+        address indexed sourceERCToken,
         address indexed targetWToken,
         uint256 amount,
         address to
