@@ -13,7 +13,7 @@ This is a default [Next.js](https://nextjs.org/) project bootstrapped with [`cre
 
 ### Auto Contract Type Generation
 
-**Note**: After adding in your new contract ABIs (in JSON format) to the `/contracts` folder, run `yarn compile-contract-types` to generate the types.
+**Note**: After adding in your new contract ABIs (in JSON format) to the `/contracts` folder, run `npm run compile-contract-types` to generate the types.
 
 You can import these types when declaring a new Contract hook. The types generated show the function params and return types of your functions, among other helpful types. 
 
