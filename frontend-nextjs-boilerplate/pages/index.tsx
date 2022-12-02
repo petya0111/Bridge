@@ -1,67 +1,70 @@
 import { useWeb3React } from "@web3-react/core";
 import Head from "next/head";
-import Link from "next/link";
-import Account from "../components/Account";
-import BookLibrary from "../components/BookLibrary";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
+import { useRouter } from "next/router";
 import { ALBT_TOKEN_ADDRESS, BOOK_LIBRARY_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
+import Header from "./header";
+import Link from "next/link";
 
 function Home() {
-  const { account, library } = useWeb3React();
+    const router = useRouter();
 
-  const triedToEagerConnect = useEagerConnect();
+    const { account, library } = useWeb3React();
 
-  const isConnected = typeof account === "string" && !!library;
+    const triedToEagerConnect = useEagerConnect();
 
-  return (
-    <div>
-      <Head>
-        <title>LimeAcademy-boilerplate</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    const isConnected = typeof account === "string" && !!library;
 
-      <header>
-        <nav>
-          <Link href="/">
-            <a>LimeAcademy-boilerplate</a>
-          </Link>
+    return (
+        <div>
+            <Head>
+                <title>LimeAcademyBridge</title>
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <Header></Header>
+            <main>
+                {isConnected && (
+                    <section>
+                        <NativeCurrencyBalance />
 
-          <Account triedToEagerConnect={triedToEagerConnect} />
-        </nav>
-      </header>
+                        <TokenBalance
+                            tokenAddress={ALBT_TOKEN_ADDRESS}
+                            symbol="ALBT"
+                        />
+                        <div>
+                            <h1>
+                                This is{" "}
+                                <a href="https://github.com/petya0111/Bridge">
+                                    ERC20 Token Bridge
+                                </a>{" "}
+                            </h1>
+                            <h4>
+                                You can use this bridge to transfer tokens
+                                between EVM based networks
+                            </h4>
+                            <h2>Start Bridging</h2>
+                            <Link href="/transfer" prefetch={isConnected}>
+                                <button>Transfer</button>
+                            </Link>
+                        </div>
+                    </section>
+                )}
+            </main>
 
-      <main>
-        <h1>
-          Welcome to{" "}
-          <a href="https://github.com/LimeChain/next-web3-boilerplate">
-            LimeAcademy-boilerplate
-          </a>
-        </h1>
+            <style jsx>{`
+                nav {
+                    display: flex;
+                    justify-content: space-between;
+                }
 
-        {isConnected && (
-          <section>
-            <NativeCurrencyBalance />
-
-            <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" />
-            <BookLibrary contractAddress={BOOK_LIBRARY_ADDRESS} />
-          </section>
-        )}
-      </main>
-
-      <style jsx>{`
-        nav {
-          display: flex;
-          justify-content: space-between;
-        }
-
-        main {
-          text-align: center;
-        }
-      `}</style>
-    </div>
-  );
+                main {
+                    text-align: center;
+                }
+            `}</style>
+        </div>
+    );
 }
 
 export default Home;
