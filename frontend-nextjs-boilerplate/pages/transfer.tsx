@@ -4,158 +4,167 @@ import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
 import useBookLibraryContract from "../hooks/useBookLibraryContract";
 import { BOOK_LIBRARY_ADDRESS } from "../constants";
-import TableBooks from "../components/TableBooks";
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 import Header from "./header";
+import {
+    Autocomplete,
+    Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Modal,
+    Select,
+    TextField,
+    Typography,
+} from "@mui/material";
+import { Box } from "@mui/system";
 
 type BookContract = {
     contractAddress: string;
 };
 
-const transfer = ({ contractAddress }: BookContract) => {
+const transfer = () => {
     const { state, dispatch } = useContext(Web3Context);
-    const router = useRouter()
+    const router = useRouter();
+    const [open, setOpen] = useState<boolean | undefined>(false);
+    const options = ["WETH", "ERC20"];
+    useEffect(() => {    }, []);
 
-    const { account, library } = useWeb3React<Web3Provider>();
-    const bookLibraryContract = useBookLibraryContract(BOOK_LIBRARY_ADDRESS);
-    const [name, setName] = useState<string | undefined>();
-    const [copies, setCopies] = useState<number | undefined>();
-    const [ownerIsLoggedIn, setOwnerIsLoggedIn] = useState<boolean>(false);
-    const [books, setBooks] = useState([]);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
-    useEffect(() => {
-        router.prefetch('/transfer')
-        checkIfOwnerContract();
-        getAllBooks();
-    }, []);
-
-    const checkIfOwnerContract = async () => {
-        const ownerOfContract = await bookLibraryContract.owner();
-        setOwnerIsLoggedIn(account === ownerOfContract);
-    };
-
-    const getAllBooks = async () => {
-        const bookIds = await bookLibraryContract.getAllBookIds();
-        if (bookIds.length > 0) {
-            let arr = [];
-            for (let bookId of bookIds) {
-                let detail = await bookLibraryContract.getBookDetail(bookId);
-                const borrowHistoryUserIds =
-                    await bookLibraryContract.getBookBorrowHistory(bookId);
-                let bookBorrowed = false;
-                if (!borrowHistoryUserIds.includes(account)) {
-                    bookBorrowed = false;
-                } else {
-                    bookBorrowed = await bookLibraryContract.isBookBorrowed(
-                        bookId
-                    );
-                }
-                arr.push({
-                    id: bookId,
-                    name: detail[0],
-                    copies: detail[1],
-                    rented: bookBorrowed,
-                });
-            }
-            setBooks(arr);
-        }
-    };
-
-    const bookNameInput = (input) => {
-        setName(input.target.value);
-    };
-
-    const bookCopiesInput = (input) => {
-        setCopies(input.target.value);
-    };
-
-    const submitBook = async () => {
-        dispatch({ type: "fetching" });
-        try {
-            const tx = await bookLibraryContract.addNewBook(name, copies);
-            dispatch({ type: "fetching", transactionHash: tx.hash });
-            const transactionReceipt = await tx.wait();
-            if (transactionReceipt.status === 1) {
-                dispatch({
-                    type: "fetched",
-                    messageType: "success",
-                    message: `Added book ${name} to library`,
-                });
-                getAllBooks();
-            } else {
-                dispatch({
-                    type: "fetched",
-                    messageType: "error",
-                    message: JSON.stringify(transactionReceipt),
-                });
-            }
-            resetForm();
-        } catch (e) {
-            dispatch({
-                type: "fetched",
-                messageType: "error",
-                message: JSON.stringify(e.error.message),
-            });
-        }
-    };
-
-    const resetForm = async () => {
-        setName("");
-        setCopies(0);
+    const style = {
+        position: "absolute" as "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 400,
+        bgcolor: "white",
+        bowShadow: "0 0 8px black",
+        p: 4,
     };
 
     return (
-        
         <div className="results-form">
             <Header></Header>
-            <TableBooks
-                books={books}
-                getBooksFunction={getAllBooks}
-                bookLibraryContract={bookLibraryContract}
-            />
-            {ownerIsLoggedIn && (
-                <div>
-                    <form>
-                        <label>
-                            Book name:
-                            <input
-                                disabled={state.fetching}
-                                onChange={bookNameInput}
-                                value={name}
-                                type="text"
-                                name="book_name"
-                            />
-                        </label>
-                        <label>
-                            Book copies:
-                            <input
-                                disabled={state.fetching}
-                                onChange={bookCopiesInput}
-                                value={copies}
-                                type="number"
-                                name="book_copies"
-                            />
-                        </label>
-                    </form>
-                    <div className="button-wrapper">
-                        <button disabled={state.fetching} onClick={submitBook}>
-                            Submit book
-                        </button>
+            <div className="dropdowns">
+                <div className="network-box">
+                    <div>Choose network to bridge to:</div>
+                    <div>
+                        <Box sx={{ minWidth: 150 }}>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">
+                                    Network
+                                </InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    // value={age}
+                                    label="Age"
+                                    // onChange={handleChange}
+                                >
+                                    <MenuItem value={10}>Goerli</MenuItem>
+                                    <MenuItem value={20}>Mumbai</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
                     </div>
                 </div>
-            )}
+                <div className="network-box">
+                    <div>Choose Token/Address:</div>
+                    <div>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={options}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                                <TextField {...params} label="Token" />
+                            )}
+                        />
+                    </div>
+                </div>
+                <div className="network-box">
+                    <div>Choose Amount:</div>
+                    <div>
+                        <TextField
+                            id="outlined-basic"
+                            label="Amount"
+                            variant="outlined"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div className="buttons-approve-transfer">
+                <Button>Approve</Button>
+                <Button onClick={handleOpen}>Transfer</Button>
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    
+                >
+                    <Box sx={style}>
+                        <div className="please-confirm">
+                        <Typography
+                            id="modal-modal-title"
+                            variant="h6"
+                            component="h2"
+                        >
+                            Please confirm
+                        </Typography>
+                        <p>Are you sure you want to bridge: </p>
+                        <p>Source Chain: Goerli</p>
+                        <p>Target Chain: Mumbai</p>
+                        <p>Token: 123 DAI</p>
+                        <div className="btns-confirm-cancel">
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button>Confirm</Button>
+                        </div>
+                        </div>
+                    </Box>
+                </Modal>
+            </div>
 
             <style jsx>{`
                 .results-form {
                     display: flex;
                     flex-direction: column;
                 }
-                .leader-results {
-                    margin-bottom: 20px;
+                .dropdowns {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 100px 0;
                 }
-
-                .button-wrapper {
-                    margin: 20px;
+                .buttons-approve-transfer {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .network-box {
+                    width: 700px;
+                    height: 100px;
+                    margin: 20px 0;
+                    text-align: center;
+                    box-shadow: 0 0 8px black;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 20px;
+                }
+                .please-confirm {
+                    display: flex;
+                    flex-direction: column;
+                    align-items:center;
+                    justify-content: center;
+                }
+                .btns-confirm-cancel {
+                    display: flex;
+                    justify-content: space-between;
                 }
             `}</style>
         </div>

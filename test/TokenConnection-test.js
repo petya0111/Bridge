@@ -45,9 +45,16 @@ const { developmentChains } = require("../hardhat.config");
                       .connect(user2)
                       .registerTargetTokenAddress(sourceToken, 5, targetWToken)
               ).to.emit(tokConn, "TokenConnectionRegistered");
+              await expect(
+                  tokConn
+                      .connect(user2)
+                      .registerTargetTokenAddress(sourceToken, 5, targetWToken)
+              ).to.emit(tokConn, "TokenConnectionRegistered");
               expect(
                   await tokConn.getTargetTokenAddress(sourceToken, 5)
               ).to.equal(targetWToken);
-                expect(await tokConn.getSourceTokenAddress(targetWToken,5)).to.equal(ethers.constants.AddressZero);
+              expect(
+                  await tokConn.getSourceTokenAddress(targetWToken, 5)
+              ).to.equal(ethers.constants.AddressZero);
           });
       });

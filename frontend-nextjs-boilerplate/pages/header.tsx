@@ -4,7 +4,7 @@ import Account from "../components/Account";
 import { useRouter } from "next/router";
 import useEagerConnect from "../hooks/useEagerConnect";
 import Link from "next/link";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 
 function Header() {
     const router = useRouter();
@@ -24,20 +24,20 @@ function Header() {
 
             <header>
                 <nav>
-                    {/* <Link href="/">
-            <a>LimeAcademy-boilerplate</a>
-          </Link> */}
-                    <Link href={`/transfer`} prefetch={isConnected}>
-                        Transfer
-                    </Link>
-                    <Link href={`/claim`} prefetch={isConnected}>
-                        Claim
-                    </Link>
+                    <Button>
+                        <Link href={`/transfer`} prefetch={isConnected}>
+                            Transfer
+                        </Link>
+                    </Button>
+                    <Button>
+                        <Link href={`/claim`} prefetch={isConnected}>
+                            Claim
+                        </Link>
+                    </Button>
 
                     <Account triedToEagerConnect={triedToEagerConnect} />
                 </nav>
             </header>
-
             <main>
                 {!isConnected && (
                     <div>
