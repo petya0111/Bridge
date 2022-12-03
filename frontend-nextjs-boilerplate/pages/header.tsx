@@ -49,7 +49,9 @@ function Header() {
             <style jsx>{`
                 nav {
                     display: flex;
+                    align-items: center;
                     justify-content: space-between;
+                    box-shadow: 0 0 8px black;
                 }
 
                 main {

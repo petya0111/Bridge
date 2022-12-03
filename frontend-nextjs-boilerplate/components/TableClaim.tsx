@@ -17,9 +17,6 @@ const TableClaim = ({ mockData }) => {
     const [open, setOpen] = useState<boolean | undefined>(false);
     const [modalData, setModalData] = useState(null);
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
     const style = {
         position: "absolute" as "absolute",
         top: "50%",
@@ -76,7 +73,6 @@ const TableClaim = ({ mockData }) => {
                 </Table>
                 <Modal
                     open={open}
-                    onClose={handleClose}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                 >
@@ -92,9 +88,18 @@ const TableClaim = ({ mockData }) => {
                             <p>Are you sure you want to Claim Your Token: </p>
                             <p>Source Chain: {modalData?.sourceNetwork}</p>
                             <p>Target Chain: {modalData?.targetNetwork}</p>
-                            <p>Token: {modalData?.amount} {modalData?.tokenName}</p>
+                            <p>
+                                Token: {modalData?.amount}{" "}
+                                {modalData?.tokenName}
+                            </p>
                             <div className="btns-confirm-cancel">
-                                <Button onClick={handleClose}>Cancel</Button>
+                                <Button
+                                    onClick={() => {
+                                        if (!state.fetching) setOpen(false);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
                                 <Button>Confirm</Button>
                             </div>
                         </div>

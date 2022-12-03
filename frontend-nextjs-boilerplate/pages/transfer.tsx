@@ -25,13 +25,23 @@ type BookContract = {
 
 const transfer = () => {
     const { state, dispatch } = useContext(Web3Context);
+    const { chainId, account, library } = useWeb3React<Web3Provider>();
     const router = useRouter();
     const [open, setOpen] = useState<boolean | undefined>(false);
     const options = ["WETH", "ERC20"];
-    useEffect(() => {    }, []);
-
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [modalData, setModalData] = useState(null);
+    useEffect(() => {}, []);
+    const supportedChains = [
+        { chainId: 5, name: "Goerli" },
+        { chainId: 80001, name: "Mumbai" },
+    ];
+    const inputObject = {
+        sourceNetwork: supportedChains
+        .find((chain) => chain.chainId == chainId)?.name,
+        targetNetwork: 1,
+        tokenNameOrAddress: "",
+        amount: 0,
+    };
 
     const style = {
         position: "absolute" as "absolute",
@@ -59,12 +69,35 @@ const transfer = () => {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    // value={age}
-                                    label="Age"
-                                    // onChange={handleChange}
+                                    // value={inputObject.targetNetwork}
+                                    label="Network"
+                                    onChange={(targetChain) =>
+                                        setModalData({
+                                            ...modalData,
+                                            targetNetwork: targetChain,
+                                        })
+                                    }
                                 >
-                                    <MenuItem value={10}>Goerli</MenuItem>
-                                    <MenuItem value={20}>Mumbai</MenuItem>
+                                    {supportedChains.map((chain) => {
+                                        return (
+                                            <MenuItem
+                                                disabled={
+                                                    chain.chainId == chainId
+                                                }
+                                                value={chain.chainId}
+                                                onChange={(targetChain) =>{
+                                                    setModalData({
+                                                        ...modalData,
+                                                        targetChain: targetChain,
+                                                      })
+                                                }
+                                                    
+                                                  }
+                                            >
+                                                {chain.name}
+                                            </MenuItem>
+                                        );
+                                    })}
                                 </Select>
                             </FormControl>
                         </Box>
@@ -97,31 +130,42 @@ const transfer = () => {
             </div>
             <div className="buttons-approve-transfer">
                 <Button>Approve</Button>
-                <Button onClick={handleOpen}>Transfer</Button>
+                <Button
+                    onClick={() => {
+                        setOpen(true);
+                        setModalData(inputObject);
+                    }}
+                >
+                    Transfer
+                </Button>
                 <Modal
                     open={open}
-                    onClose={handleClose}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
-                    
                 >
                     <Box sx={style}>
                         <div className="please-confirm">
-                        <Typography
-                            id="modal-modal-title"
-                            variant="h6"
-                            component="h2"
-                        >
-                            Please confirm
-                        </Typography>
-                        <p>Are you sure you want to bridge: </p>
-                        <p>Source Chain: Goerli</p>
-                        <p>Target Chain: Mumbai</p>
-                        <p>Token: 123 DAI</p>
-                        <div className="btns-confirm-cancel">
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button>Confirm</Button>
-                        </div>
+                            <Typography
+                                id="modal-modal-title"
+                                variant="h6"
+                                component="h2"
+                            >
+                                Please confirm
+                            </Typography>
+                            <p>Are you sure you want to bridge: </p>
+                            <p>Source Chain: Goerli</p>
+                            <p>Target Chain: {modalData?.targetNetwork}</p>
+                            <p>Token: 123 DAI</p>
+                            <div className="btns-confirm-cancel">
+                                <Button
+                                    onClick={() => {
+                                        if (!state.fetching) setOpen(false);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button>Confirm</Button>
+                            </div>
                         </div>
                     </Box>
                 </Modal>
@@ -159,7 +203,7 @@ const transfer = () => {
                 .please-confirm {
                     display: flex;
                     flex-direction: column;
-                    align-items:center;
+                    align-items: center;
                     justify-content: center;
                 }
                 .btns-confirm-cancel {
