@@ -43,7 +43,7 @@ const TableClaim = ({ mockData }) => {
                     </TableHead>
                     <TableBody>
                         {mockData.map((row) => (
-                            <TableRow key={row.name}>
+                            <TableRow key={row.idx}>
                                 <TableCell component="th" scope="row">
                                     {row.sourceNetwork}
                                 </TableCell>

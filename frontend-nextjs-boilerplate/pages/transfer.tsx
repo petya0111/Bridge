@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
 import useBookLibraryContract from "../hooks/useBookLibraryContract";
-import { BOOK_LIBRARY_ADDRESS } from "../constants";
+import { BOOK_LIBRARY_ADDRESS ,supportedChains } from "../constants";
 import { useRouter } from "next/router";
 import Header from "./header";
 import {
@@ -31,10 +31,7 @@ const transfer = () => {
     const options = ["WETH", "ERC20"];
     const [modalData, setModalData] = useState(null);
     useEffect(() => {}, []);
-    const supportedChains = [
-        { chainId: 5, name: "Goerli", idx: 0 },
-        { chainId: 80001, name: "Mumbai", idx: 1 },
-    ];
+    
     const sourceChain = supportedChains.find(
         (chain) => chain.chainId == chainId
     );

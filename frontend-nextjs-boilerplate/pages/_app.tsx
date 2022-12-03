@@ -15,6 +15,7 @@ import {
     Typography,
 } from "@mui/material";
 import { formatEtherscanLink } from "../util";
+import { Web3Provider } from "@ethersproject/providers";
 
 export interface Web3State {
     connected: boolean;
@@ -87,6 +88,7 @@ export const Web3Context = createContext<{
 function NextWeb3App({ Component, pageProps }: AppProps) {
     const [state, dispatch] = useReducer(web3Reducer, initialState);
     const [openState, setOpenState] = useState(false);
+    const { chainId, account, library } = useWeb3React<Web3Provider>();
 
     return (
         <Web3Context.Provider value={{ state, dispatch }}>
@@ -129,7 +131,7 @@ function NextWeb3App({ Component, pageProps }: AppProps) {
                                         variant="h5"
                                         href={formatEtherscanLink(
                                             "Transaction",
-                                            [5, state.transactionHash]
+                                            [chainId, state.transactionHash]
                                         )}
                                         target="_blank"
                                     >

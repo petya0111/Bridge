@@ -12,6 +12,10 @@
 
   // Network chain ids
   export const supportedMetamaskNetworks = [1, 3, 4, 5, 42, 80001];
+  export const supportedChains = [
+    { chainId: 5, name: "Goerli", idx: 0 },
+    { chainId: 80001, name: "Mumbai", idx: 1 },
+];
 
   export const ALBT_TOKEN_ADDRESS = "0xc6869a93ef55e1d8ec8fdcda89c9d93616cf0a72";
   export const US_ELECTION_ADDRESS = "0x3ba399eCa9CdAe82675CAEa7bb422d5659ea7fe3";

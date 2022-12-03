@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "../pages/_app";
 import { useContext, useState, useEffect, useCallback } from "react";
 import useBookLibraryContract from "../hooks/useBookLibraryContract";
-import { ALBT_TOKEN_ADDRESS, BOOK_LIBRARY_ADDRESS } from "../constants";
+import { ALBT_TOKEN_ADDRESS } from "../constants";
 import { useRouter } from "next/router";
 import Header from "./header";
 import TableClaim from "../components/TableClaim";
@@ -21,6 +21,7 @@ const claim = ({ contractAddress }: BookContract) => {
             tokenName: "DAI",
             amount: 123,
             claimed: false,
+            idx: 0,
         },
         {
             sourceNetwork: "Goerli",
@@ -28,6 +29,7 @@ const claim = ({ contractAddress }: BookContract) => {
             tokenName: "DAI",
             amount: 123,
             claimed: true,
+            idx: 1,
         },
     ];
 
