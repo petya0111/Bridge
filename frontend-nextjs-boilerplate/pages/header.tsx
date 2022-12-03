@@ -25,12 +25,12 @@ function Header() {
             <header>
                 <nav>
                     <Button>
-                        <Link href={`/transfer`} prefetch={isConnected}>
+                        <Link href={`/transfer`}>
                             Transfer
                         </Link>
                     </Button>
                     <Button>
-                        <Link href={`/claim`} prefetch={isConnected}>
+                        <Link href={`/claim`}>
                             Claim
                         </Link>
                     </Button>

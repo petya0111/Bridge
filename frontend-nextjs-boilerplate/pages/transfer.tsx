@@ -32,13 +32,18 @@ const transfer = () => {
     const [modalData, setModalData] = useState(null);
     useEffect(() => {}, []);
     const supportedChains = [
-        { chainId: 5, name: "Goerli" },
-        { chainId: 80001, name: "Mumbai" },
+        { chainId: 5, name: "Goerli", idx: 0 },
+        { chainId: 80001, name: "Mumbai", idx: 1 },
     ];
+    const sourceChain = supportedChains.find(
+        (chain) => chain.chainId == chainId
+    );
+    const targetChain = supportedChains.find(
+        (chain) => chain.chainId != chainId
+    );
     const inputObject = {
-        sourceNetwork: supportedChains
-        .find((chain) => chain.chainId == chainId)?.name,
-        targetNetwork: 1,
+        sourceNetwork: sourceChain?.name,
+        targetNetwork: targetChain?.name,
         tokenNameOrAddress: "",
         amount: 0,
     };
@@ -69,30 +74,19 @@ const transfer = () => {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    // value={inputObject.targetNetwork}
-                                    label="Network"
-                                    onChange={(targetChain) =>
-                                        setModalData({
-                                            ...modalData,
-                                            targetNetwork: targetChain,
-                                        })
+                                    value={
+                                        targetChain?.idx
                                     }
+                                    label="Network"
                                 >
                                     {supportedChains.map((chain) => {
                                         return (
                                             <MenuItem
+                                                key={chain?.name}
                                                 disabled={
                                                     chain.chainId == chainId
                                                 }
-                                                value={chain.chainId}
-                                                onChange={(targetChain) =>{
-                                                    setModalData({
-                                                        ...modalData,
-                                                        targetChain: targetChain,
-                                                      })
-                                                }
-                                                    
-                                                  }
+                                                value={chain.idx}
                                             >
                                                 {chain.name}
                                             </MenuItem>
@@ -153,7 +147,7 @@ const transfer = () => {
                                 Please confirm
                             </Typography>
                             <p>Are you sure you want to bridge: </p>
-                            <p>Source Chain: Goerli</p>
+                            <p>Source Chain: {modalData?.sourceNetwork}</p>
                             <p>Target Chain: {modalData?.targetNetwork}</p>
                             <p>Token: 123 DAI</p>
                             <div className="btns-confirm-cancel">
