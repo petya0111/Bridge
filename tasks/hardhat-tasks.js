@@ -1,7 +1,6 @@
 const { task } = require("hardhat/config");
 
 task("deploy-testnets", "Deploys contract on a provided network")
-.addParam("privateKey", "Please provide the private key")
 .setAction(
     async () => {
         const deployBookLibraryContract = require("../scripts/deploy-contracts-on-network.js");

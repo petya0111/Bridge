@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 interface IBridgeBase {
     function lockToken(
-        uint16 _targetChainId,
+        uint32 _targetChainId, // mumbai is 80001
         address payable _token,
         uint256 _amount
     ) external payable;
@@ -15,7 +15,7 @@ interface IBridgeBase {
     ) external;
 
     function burn(
-        uint16 _targetChainId,
+        uint32 _targetChainId, // mumbai is 80001
         address _wrappedToken,
         uint256 _amount
     ) external payable;

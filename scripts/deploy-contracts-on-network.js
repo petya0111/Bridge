@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
 
-async function deployContractsOnNetwork(_privateKey) {
+async function deployContractsOnNetwork() {
     await hre.run("compile"); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
 

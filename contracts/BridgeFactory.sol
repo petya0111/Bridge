@@ -18,14 +18,14 @@ contract BridgeBase is IBridgeBase, Ownable {
 
     event LogLock(
         address indexed from,
-        uint16 indexed targetChainId,
+        uint32 indexed targetChainId,
         address tokenAddress,
         uint256 amount
     );
     event LogMint(address indexed receiver, address token, uint256 amount);
     event LogBurn(
         address indexed from,
-        uint16 indexed targetChainId,
+        uint32 indexed targetChainId,
         address wrappedToken,
         uint256 amount
     );
@@ -39,7 +39,7 @@ contract BridgeBase is IBridgeBase, Ownable {
 
     // needs to be executed another approve transaction in order to lock the token
     function lockToken(
-        uint16 _targetChainId,
+        uint32 _targetChainId,
         address payable _token,
         uint256 _amount
     ) external payable override {
@@ -70,7 +70,7 @@ contract BridgeBase is IBridgeBase, Ownable {
     }
 
     function burn(
-        uint16 _targetChainId,
+        uint32 _targetChainId,
         address _wrappedToken,
         uint256 _amount
     ) external payable override {
