@@ -3,22 +3,21 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
 import useBookLibraryContract from "../hooks/useBookLibraryContract";
-import { BOOK_LIBRARY_ADDRESS ,supportedChains } from "../constants";
+import { supportedChains } from "../constants";
 import { useRouter } from "next/router";
 import Header from "./header";
 import {
-    Autocomplete,
     Button,
     FormControl,
     InputLabel,
     MenuItem,
     Modal,
     Select,
+    Autocomplete,
     TextField,
     Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-
 type BookContract = {
     contractAddress: string;
 };
@@ -30,20 +29,22 @@ const transfer = () => {
     const [open, setOpen] = useState<boolean | undefined>(false);
     const options = ["WETH", "ERC20"];
     const [modalData, setModalData] = useState(null);
+
     useEffect(() => {}, []);
-    
+
     const sourceChain = supportedChains.find(
         (chain) => chain.chainId == chainId
     );
     const targetChain = supportedChains.find(
         (chain) => chain.chainId != chainId
     );
-    const inputObject = {
-        sourceNetwork: sourceChain?.name,
-        targetNetwork: targetChain?.name,
-        tokenNameOrAddress: "",
+    let inputObject = {
+        sourceNetwork: "Source Network",
+        targetNetwork: "Target Network",
+        tokenNameOrAddress: "0x000",
         amount: 0,
     };
+    const [inputData, setInputData] = useState(inputObject);
 
     const style = {
         position: "absolute" as "absolute",
@@ -71,9 +72,7 @@ const transfer = () => {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    value={
-                                        targetChain?.idx
-                                    }
+                                    value={targetChain?.idx}
                                     label="Network"
                                 >
                                     {supportedChains.map((chain) => {
@@ -101,13 +100,36 @@ const transfer = () => {
                             disablePortal
                             id="combo-box-demo"
                             options={options}
+                            onChange={(event, value) => {
+                                if (value !== undefined) {
+                                    inputData.tokenNameOrAddress = value;
+                                }
+                            }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
-                                <TextField {...params} label="Token" />
+                                <TextField
+                                    {...params}
+                                    label="Choose token"
+                                    variant="outlined"
+                                />
                             )}
                         />
                     </div>
+                    <div>
+                        <TextField
+                            id="outlined-basic"
+                            label="Manually add Token Address"
+                            variant="outlined"
+                            onChange={(e) => {
+                                if (e.target.value !== undefined) {
+                                    inputData.tokenNameOrAddress =
+                                        e.target.value;
+                                }
+                            }}
+                        />
+                    </div>
                 </div>
+
                 <div className="network-box">
                     <div>Choose Amount:</div>
                     <div>
@@ -115,6 +137,11 @@ const transfer = () => {
                             id="outlined-basic"
                             label="Amount"
                             variant="outlined"
+                            onChange={(e) => {
+                                if (e.target.value !== undefined) {
+                                    inputData.amount = Number(e.target.value);
+                                }
+                            }}
                         />
                     </div>
                 </div>
@@ -124,7 +151,9 @@ const transfer = () => {
                 <Button
                     onClick={() => {
                         setOpen(true);
-                        setModalData(inputObject);
+                        inputData.sourceNetwork = sourceChain.name;
+                        inputData.targetNetwork = targetChain.name;
+                        setModalData(inputData);
                     }}
                 >
                     Transfer
@@ -146,7 +175,10 @@ const transfer = () => {
                             <p>Are you sure you want to bridge: </p>
                             <p>Source Chain: {modalData?.sourceNetwork}</p>
                             <p>Target Chain: {modalData?.targetNetwork}</p>
-                            <p>Token: 123 DAI</p>
+                            <p>
+                                Token: {modalData?.amount}{" "}
+                                {modalData?.tokenNameOrAddress}
+                            </p>
                             <div className="btns-confirm-cancel">
                                 <Button
                                     onClick={() => {
@@ -155,7 +187,13 @@ const transfer = () => {
                                 >
                                     Cancel
                                 </Button>
-                                <Button>Confirm</Button>
+                                <Button
+                                    onClick={() => {
+                                        // console.log("modaldata", modalData);
+                                    }}
+                                >
+                                    Confirm
+                                </Button>
                             </div>
                         </div>
                     </Box>
@@ -172,7 +210,7 @@ const transfer = () => {
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    margin: 100px 0;
+                    margin: 50px 0;
                 }
                 .buttons-approve-transfer {
                     display: flex;
@@ -181,7 +219,7 @@ const transfer = () => {
                     justify-content: center;
                 }
                 .network-box {
-                    width: 700px;
+                    width: 900px;
                     height: 100px;
                     margin: 20px 0;
                     text-align: center;
