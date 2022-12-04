@@ -48,6 +48,8 @@ const { developmentChains } = require("../hardhat.config");
                       (e) => e.event == "LogETHTokenCreated"
                   )[0].topics[1]
               );
+              const tokIds = await ethWrapper.getAllTokenIds();
+              expect(tokIds).to.have.length(1);
               tokenAddress = tkAddr;
               expect(await ethWrapper.getTokenContractAddress(tkAddr)).to.be
                   .properAddress;

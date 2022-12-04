@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ETHWrapperContract is Ownable, IETHWrapper {
     mapping(address => ERC20Token) private wTokenContracts;
     mapping(address => address) public savedTokens;
+    address[] public createdWTokens;
 
     event LogETHApproved(address spender, uint256 amount);
     event LogETHRegistered(
@@ -28,16 +29,9 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
     {
         ERC20Token ercToken = new ERC20Token(_name, _symbol, msg.sender);
         wTokenContracts[address(ercToken)] = ercToken;
+        createdWTokens.push(address(ercToken));
         emit LogETHTokenCreated(address(ercToken), _name, _symbol);
         return ercToken;
-    }
-
-    function getTokenContractAddress(address token)
-        public
-        view
-        returns (ERC20Token)
-    {
-        return wTokenContracts[token];
     }
 
     function approve(
@@ -57,10 +51,6 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
         emit LogETHRegistered(sourceTokenAddress, currentTokenAddress);
     }
 
-    function balanceOf(address tokenAddress, address owner) public view returns (uint){
-       return wTokenContracts[tokenAddress].balanceOf(owner);
-    }
-
     function increaseAllowance(
         address tokenAddress,
         address spender,
@@ -68,4 +58,25 @@ contract ETHWrapperContract is Ownable, IETHWrapper {
     ) public {
         wTokenContracts[tokenAddress].increaseAllowance(spender, addedValue);
     }
+
+    function balanceOf(address tokenAddress, address owner)
+        public
+        view
+        returns (uint256)
+    {
+        return wTokenContracts[tokenAddress].balanceOf(owner);
+    }
+
+    function getTokenContractAddress(address token)
+        public
+        view
+        returns (ERC20Token)
+    {
+        return wTokenContracts[token];
+    }
+
+    function getAllTokenIds() public view returns (address[] memory) {
+        return createdWTokens;
+    }
+
 }

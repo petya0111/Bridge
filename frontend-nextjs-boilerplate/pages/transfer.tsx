@@ -2,8 +2,11 @@ import type { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
-import useBookLibraryContract from "../hooks/useBookLibraryContract";
-import { supportedChains } from "../constants";
+import {
+    ETH_WRAPPER_GOERLI_ADDRESS,
+    ETH_WRAPPER_MUMBAI_ADDRESS,
+    supportedChains,
+} from "../constants";
 import { useRouter } from "next/router";
 import Header from "./header";
 import {
@@ -18,6 +21,10 @@ import {
     Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import useBridgeContract from "../hooks/useBridgeContract";
+import useETHWrapperContract from "../hooks/useETHWrapperContract";
+import useTokenBalance from "../hooks/useTokenBalance";
+import useIERC20TokenContract from "../hooks/useIERC20Contract";
 type BookContract = {
     contractAddress: string;
 };
@@ -25,12 +32,40 @@ type BookContract = {
 const transfer = () => {
     const { state, dispatch } = useContext(Web3Context);
     const { chainId, account, library } = useWeb3React<Web3Provider>();
+    const brdigeContract = useBridgeContract();
+    const token = useTokenBalance(account, "");
+    const ethWrapperContract = useETHWrapperContract(
+        chainId == (5 ?? 5)
+            ? ETH_WRAPPER_GOERLI_ADDRESS
+            : ETH_WRAPPER_MUMBAI_ADDRESS
+    );
+    const [currentToken, setCurrentToken] = useState("");
+    const ierc = useIERC20TokenContract(currentToken);
     const router = useRouter();
     const [open, setOpen] = useState<boolean | undefined>(false);
     const options = ["WETH", "ERC20"];
     const [modalData, setModalData] = useState(null);
+    const [presentedTokens, setPresentedTokens] = useState([]);
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        checkPresentedTokens();
+    }, [chainId, currentToken]);
+
+    const checkPresentedTokens = async () => {
+        const tokens = await ethWrapperContract?.getAllTokenIds();
+        if (tokens?.length > 0) {
+            // let arr = [];
+            // for (let t of tokens) {
+            //     // setCurrentToken(t);
+            //     const sym = await ierc?.symbol();
+            //     console.log(sym, "sym");
+            //     arr.push(sym);
+            // }
+            setPresentedTokens(tokens);
+            console.log("currentToken",presentedTokens);
+        }
+        console.log(tokens);
+    };
 
     const sourceChain = supportedChains.find(
         (chain) => chain.chainId == chainId
@@ -99,13 +134,14 @@ const transfer = () => {
                         <Autocomplete
                             disablePortal
                             id="combo-box-demo"
-                            options={options}
+                            options={presentedTokens}
                             onChange={(event, value) => {
                                 if (value !== undefined) {
+                                    setCurrentToken(value);
                                     inputData.tokenNameOrAddress = value;
                                 }
                             }}
-                            sx={{ width: 300 }}
+                            sx={{ width: 450 }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -219,7 +255,7 @@ const transfer = () => {
                     justify-content: center;
                 }
                 .network-box {
-                    width: 900px;
+                    width: 1200px;
                     height: 100px;
                     margin: 20px 0;
                     text-align: center;
