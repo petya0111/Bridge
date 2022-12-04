@@ -42,31 +42,33 @@ const transfer = () => {
             ? ETH_WRAPPER_GOERLI_ADDRESS
             : ETH_WRAPPER_MUMBAI_ADDRESS
     );
-    const [currentToken, setCurrentToken] = useState("");
-    const ercTokenContract = useERC20TokenContract(chainId == (5 ?? 5)
-    ? ERC20_TOKEN_GOERLI_ADDRESS
-    : ERC20_TOKEN_MUMBAI_ADDRESS);
+    const ercTokenContract = useERC20TokenContract(
+        chainId == (5 ?? 5)
+            ? ERC20_TOKEN_GOERLI_ADDRESS
+            : ERC20_TOKEN_MUMBAI_ADDRESS
+    );
     const [open, setOpen] = useState<boolean | undefined>(false);
-    const options = ["WETH", "ERC20"];
     const [modalData, setModalData] = useState(null);
     const [presentedTokens, setPresentedTokens] = useState([]);
+    const [tokenAddressSymMap, setTokenAddressSymMap] = useState(null);
 
     useEffect(() => {
         checkPresentedTokens();
-    }, [chainId, currentToken]);
+    }, [chainId]);
 
     const checkPresentedTokens = async () => {
         const tokens = await ethWrapperContract?.getAllTokenIds();
         if (tokens?.length > 0) {
+            let tokenMap = new Map();
             let arr = [];
             for (let t of tokens) {
                 const sym = await ercTokenContract?.getTokenSymbol(t);
-                console.log(sym, "sym");
+                tokenMap.set( sym,t);
                 arr.push(sym);
             }
+            setTokenAddressSymMap(tokenMap);
             setPresentedTokens(arr);
         }
-        console.log(tokens);
     };
 
     const sourceChain = supportedChains.find(
@@ -79,6 +81,7 @@ const transfer = () => {
         sourceNetwork: "Source Network",
         targetNetwork: "Target Network",
         tokenNameOrAddress: "0x000",
+        tokenAddress: "0x",
         amount: 0,
     };
     const [inputData, setInputData] = useState(inputObject);
@@ -139,15 +142,15 @@ const transfer = () => {
                             options={presentedTokens}
                             onChange={(event, value) => {
                                 if (value !== undefined) {
-                                    setCurrentToken(value);
-                                    inputData.tokenNameOrAddress = value;
+                                    inputData.tokenNameOrAddress =value;
+                                    inputData.tokenAddress = tokenAddressSymMap.get(value);
                                 }
                             }}
-                            sx={{ width: 450 }}
+                            sx={{ width: 250 }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Choose token"
+                                    label="Choose existing token"
                                     variant="outlined"
                                 />
                             )}
@@ -158,10 +161,12 @@ const transfer = () => {
                             id="outlined-basic"
                             label="Manually add Token Address"
                             variant="outlined"
+                            sx={{ width: 250 }}
                             onChange={(e) => {
                                 if (e.target.value !== undefined) {
                                     inputData.tokenNameOrAddress =
                                         e.target.value;
+                                    inputData.tokenAddress = e.target.value;
                                 }
                             }}
                         />
