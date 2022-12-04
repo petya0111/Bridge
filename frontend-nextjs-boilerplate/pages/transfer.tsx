@@ -4,6 +4,8 @@ import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
 
 import {
+    BRIDGE_GOERLI_ADDRESS,
+    BRIDGE_MUMBAI_ADDRESS,
     ERC20_TOKEN_GOERLI_ADDRESS,
     ERC20_TOKEN_MUMBAI_ADDRESS,
     ETH_WRAPPER_GOERLI_ADDRESS,
@@ -22,31 +24,33 @@ import {
     Autocomplete,
     TextField,
     Typography,
+    Stack,
+    Link,
+    LinearProgress,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import useBridgeContract from "../hooks/useBridgeContract";
 import useETHWrapperContract from "../hooks/useETHWrapperContract";
-import useTokenBalance from "../hooks/useTokenBalance";
 import useERC20TokenContract from "../hooks/useERC20TokenContract";
-type BookContract = {
-    contractAddress: string;
-};
+import { ethers } from "ethers";
+import { formatEtherscanLink, parseBalance } from "../util";
 
 const transfer = () => {
     const { state, dispatch } = useContext(Web3Context);
     const { chainId, account, library } = useWeb3React<Web3Provider>();
-    const brdigeContract = useBridgeContract();
-    const token = useTokenBalance(account, "");
-    const ethWrapperContract = useETHWrapperContract(
-        chainId == (5 ?? 5)
+    const bridgeAddress =
+        chainId == 5 ?? 5 ? BRIDGE_GOERLI_ADDRESS : BRIDGE_MUMBAI_ADDRESS;
+    const ethWAddress =
+        chainId == 5 ?? 5
             ? ETH_WRAPPER_GOERLI_ADDRESS
-            : ETH_WRAPPER_MUMBAI_ADDRESS
-    );
-    const ercTokenContract = useERC20TokenContract(
-        chainId == (5 ?? 5)
+            : ETH_WRAPPER_MUMBAI_ADDRESS;
+    const erc20Address =
+        chainId == 5 ?? 5
             ? ERC20_TOKEN_GOERLI_ADDRESS
-            : ERC20_TOKEN_MUMBAI_ADDRESS
-    );
+            : ERC20_TOKEN_MUMBAI_ADDRESS;
+    const brdigeContract = useBridgeContract(bridgeAddress);
+    const ethWrapperContract = useETHWrapperContract(ethWAddress);
+    const ercTokenContract = useERC20TokenContract(erc20Address);
     const [open, setOpen] = useState<boolean | undefined>(false);
     const [modalData, setModalData] = useState(null);
     const [presentedTokens, setPresentedTokens] = useState([]);
@@ -63,11 +67,111 @@ const transfer = () => {
             let arr = [];
             for (let t of tokens) {
                 const sym = await ercTokenContract?.getTokenSymbol(t);
-                tokenMap.set( sym,t);
+                tokenMap.set(sym, t);
                 arr.push(sym);
             }
             setTokenAddressSymMap(tokenMap);
             setPresentedTokens(arr);
+        }
+    };
+
+    const lockToken = async () => {
+        console.log(modalData);
+        dispatch({ type: "transfermodalfetching" });
+        try {
+            dispatch({ type: "transfermodalfetching" });
+            const approve = await ercTokenContract.approve(
+                bridgeAddress,
+                inputData.amount
+            );
+            dispatch({
+                type: "transfermodalfetching",
+                transactionHash: approve.hash,
+            });
+            const approveReceipt = await approve.wait();
+            if (approveReceipt.status === 1) {
+                const mint = await ercTokenContract.mint(
+                    bridgeAddress,
+                    modalData.amount
+                );
+                dispatch({
+                    type: "transfermodalfetching",
+                    transactionHash: mint.hash,
+                });
+                const mintReceipt = await mint.wait();
+                if (mintReceipt.status === 1) {
+                    const tx = await brdigeContract.lockToken(
+                        targetChain.chainId,
+                        modalData.tokenAddress,
+                        modalData.amount,
+                        { value: ethers.utils.parseEther("0.005") }
+                    );
+                    dispatch({
+                        type: "transfermodalfetching",
+                        transactionHash: tx.hash,
+                    });
+                    const transactionReceipt = await tx.wait();
+                    if (transactionReceipt.status === 1) {
+                        dispatch({
+                            type: "fetched",
+                            messageType: "success",
+                            message: `Locked token from bridge ${modalData.tokenNameOrAddress}`,
+                        });
+                    } else {
+                        dispatch({
+                            type: "transfermodalfetched",
+                            messageType: "error",
+                            message: JSON.stringify(transactionReceipt),
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            dispatch({
+                type: "transfermodalfetched",
+                messageType: "error",
+                message: JSON.stringify(e.error?.message),
+            });
+        }
+    };
+
+    const approveToken = async () => {
+        dispatch({ type: "fetching" });
+        try {
+            dispatch({ type: "fetching" });
+            const approve = await ercTokenContract.approve(
+                account,
+                inputData.amount
+            );
+            dispatch({ type: "fetching", transactionHash: approve.hash });
+            const approveReceipt = await approve.wait();
+            if (approveReceipt.status === 1) {
+                const mint = await ercTokenContract.mint(
+                    bridgeAddress,
+                    modalData.amount
+                );
+                dispatch({ type: "fetching", transactionHash: mint.hash });
+                const mintReceipt = await mint.wait();
+                if (mintReceipt.status === 1) {
+                    dispatch({
+                        type: "fetched",
+                        messageType: "success",
+                        message: `Minted token ${modalData.tokenNameOrAddress}`,
+                    });
+                } else {
+                    dispatch({
+                        type: "fetched",
+                        messageType: "error",
+                        message: JSON.stringify(mintReceipt),
+                    });
+                }
+            }
+        } catch (e) {
+            dispatch({
+                type: "fetched",
+                messageType: "error",
+                message: JSON.stringify(e.error?.message),
+            });
         }
     };
 
@@ -91,7 +195,7 @@ const transfer = () => {
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        width: 400,
+        width: 1200,
         bgcolor: "white",
         bowShadow: "0 0 8px black",
         p: 4,
@@ -142,8 +246,9 @@ const transfer = () => {
                             options={presentedTokens}
                             onChange={(event, value) => {
                                 if (value !== undefined) {
-                                    inputData.tokenNameOrAddress =value;
-                                    inputData.tokenAddress = tokenAddressSymMap.get(value);
+                                    inputData.tokenNameOrAddress = value;
+                                    inputData.tokenAddress =
+                                        tokenAddressSymMap.get(value);
                                 }
                             }}
                             sx={{ width: 250 }}
@@ -190,7 +295,7 @@ const transfer = () => {
                 </div>
             </div>
             <div className="buttons-approve-transfer">
-                <Button>Approve</Button>
+                <Button onClick={approveToken}>Approve</Button>
                 <Button
                     onClick={() => {
                         setOpen(true);
@@ -210,7 +315,7 @@ const transfer = () => {
                         <div className="please-confirm">
                             <Typography
                                 id="modal-modal-title"
-                                variant="h6"
+                                variant="h3"
                                 component="h2"
                             >
                                 Please confirm
@@ -224,6 +329,7 @@ const transfer = () => {
                             </p>
                             <div className="btns-confirm-cancel">
                                 <Button
+                                    disabled={state.transfermodalfetching}
                                     onClick={() => {
                                         if (!state.fetching) setOpen(false);
                                     }}
@@ -231,12 +337,50 @@ const transfer = () => {
                                     Cancel
                                 </Button>
                                 <Button
-                                    onClick={() => {
-                                        // console.log("modaldata", modalData);
-                                    }}
+                                    disabled={state.transfermodalfetching}
+                                    onClick={lockToken}
                                 >
                                     Confirm
                                 </Button>
+                            </div>
+                            <div>
+                                {state.transfermodalfetching && (
+                                    <Box>
+                                        <Stack
+                                            spacing={5}
+                                            justifyContent="center"
+                                            alignContent="center"
+                                            alignItems="center"
+                                        >
+                                            {state.transactionHash && (
+                                                <Box>
+                                                    <Typography>
+                                                        Waiting transation to be
+                                                        mined...
+                                                    </Typography>
+                                                    <Link
+                                                        variant="h5"
+                                                        href={formatEtherscanLink(
+                                                            "Transaction",
+                                                            [
+                                                                chainId,
+                                                                state.transactionHash,
+                                                            ]
+                                                        )}
+                                                        target="_blank"
+                                                    >
+                                                        {state.transactionHash}
+                                                    </Link>
+                                                </Box>
+                                            )}
+                                            <LinearProgress
+                                                sx={{
+                                                    width: "200px",
+                                                }}
+                                            />
+                                        </Stack>
+                                    </Box>
+                                )}
                             </div>
                         </div>
                     </Box>

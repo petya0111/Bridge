@@ -50,6 +50,15 @@ const { developmentChains } = require("../hardhat.config");
               wrappedErc20Token = ethers.utils.hexStripZeros(
                   receipt.events[0].address
               );
+              expect(await bridge.mint(bridge.address, 22, wrappedErc20Token)).to.emit("LogMint");
+              const approveResponse= await ethWrapper.approve(wrappedErc20Token, bridge.address, 22);
+              const approveReceipt = await approveResponse.wait();
+              console.log(approveReceipt.status)
+              if(approveReceipt.status == 1) {
+                
+                  expect( bridge.lockToken(80001, wrappedErc20Token, 22, {value: serviceFee})).to.be.revertedWith("ERC20: insufficient allowance");
+                //   expect(await bridge.burn(5, wrappedErc20Token, 22, {value: serviceFee})).to.emit("LogLock");
+              }
               wBridgeToken = wrappedErc20Token;
           });
 

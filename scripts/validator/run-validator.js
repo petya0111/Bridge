@@ -1,11 +1,11 @@
 const { ethers, network } = require("hardhat");
-const { developmentChains } = require("../hardhat.config");
+const { developmentChains } = require("../../hardhat.config");
 require("dotenv").config();
 const { Web3 } = require("web3");
-const { BridgeABI } = require("../abis/BridgeBase.json");
-const { ERC20ABI } = require("../abis/ERC20Token.json");
-const { WETHABI } = require("../abis/ETHWrapper.json");
-const { TLedgerABI } = require("../abis/TokenLedger.json");
+const { BridgeABI } = require("../../artifacts/contracts/BridgeFactory.sol/BridgeBase.json");
+const { ERC20ABI } = require("../../artifacts/contracts/BridgeFactory.sol/ERC20Token.json");
+const { WETHABI } = require("../../artifacts/contracts/BridgeFactory.sol/ETHWrapper.json");
+const { TLedgerABI } = require("../../artifacts/contracts/BridgeFactory.sol/TokenLedger.json");
 bridgeSourceChain = "0x";
 bridgeTargetChain = "0x";
 sourceChain = process.env.GOERLI_URL;

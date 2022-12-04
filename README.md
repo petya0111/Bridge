@@ -2,7 +2,18 @@
 
 This project demonstrates a Bridge contracts. 
 
-<!-- > **_NOTE:_**  Contract is already deployed in  testnet-->
+## Run frontend
+```
+cd frontend-nextjs-boilerplate/
+npm run compile-contract-types
+```
+
+## Run validator
+```
+/root folder
+npx hardhat compile
+npx hardhat run-validator
+```
 
 ## Execute tasks for local setup
 
@@ -47,7 +58,7 @@ npx hardhat run-validator
 
 ## Deployments on goerli
 ```
-Deployed ERC20TokenContract on contract address: 0x35EEe5251fD07DE8f75bc4908e383bB2d5Df49A4
+Deployed ERC20TokenContract on contract address: 0xF583120B6aF3e70062Eb962F66243378b859A3Bc
 Deployed ETHWrapperContract on contract address: 0x0A6779139cba89a49E332C52d2DA8A75068A1a30
 Deployed BridgeContract on contract address: 0x9B294b82Bb76fa14dA7D780f02eAe4Aa43e2E8C7
 Deployed TokenLedgerContract on contract address: 0x744063127BD52c49236F134434d7d65339F71B2C
@@ -56,7 +67,7 @@ https://goerli.etherscan.io/address/0x0A6779139cba89a49E332C52d2DA8A75068A1a30#c
 Successfully verified contract TokenLedger on Etherscan.
 https://goerli.etherscan.io/address/0x744063127BD52c49236F134434d7d65339F71B2C#code
 Successfully verified contract ERC20Token on Etherscan.
-https://goerli.etherscan.io/address/0x35EEe5251fD07DE8f75bc4908e383bB2d5Df49A4#code
+https://goerli.etherscan.io/address/0xF583120B6aF3e70062Eb962F66243378b859A3Bc#code
 Successfully verified contract BridgeBase on Etherscan.
 https://goerli.etherscan.io/address/0x9B294b82Bb76fa14dA7D780f02eAe4Aa43e2E8C7#code
 ```

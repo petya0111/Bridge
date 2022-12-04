@@ -21,6 +21,7 @@ export interface Web3State {
     connected: boolean;
     address: string;
     fetching: boolean;
+    transfermodalfetching: boolean;
     contract?: Contract;
     transactionHash?: string;
     message?: string;
@@ -38,11 +39,14 @@ export type Web3Action =
           web3Provider: any;
       }
     | { type: "fetching"; transactionHash?: string }
+    | { type: "transfermodalfetching"; transactionHash?: string }
+    | { type: "transfermodalfetched"; transactionHash?: string }
     | { type: "fetched"; messageType?: AlertColor; message?: string }
     | { type: "removeMessage" };
 
 const initialState: Web3State = {
     fetching: false,
+    transfermodalfetching: false,
     connected: false,
     address: "",
 };
@@ -74,6 +78,22 @@ function web3Reducer(state: Web3State, action: Web3Action): Web3State {
                 messageType: action.messageType,
             };
         }
+        case "transfermodalfetching": {
+            return {
+                ...state,
+                transfermodalfetching: true,
+                transactionHash: action.transactionHash,
+            };
+        }
+        case "transfermodalfetched": {
+            return {
+                ...state,
+                transfermodalfetching: false,
+                message: action.message,
+                messageType: action.messageType,
+            };
+        }
+        
         case "removeMessage": {
             return { ...state, messageType: undefined, message: undefined };
         }

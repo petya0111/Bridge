@@ -48,6 +48,7 @@ const { developmentChains } = require("../hardhat.config");
                       (e) => e.event == "LogETHTokenCreated"
                   )[0].topics[1]
               );
+              expect(await erc20.connect(admin).getTokenSymbol(tkAddr)).to.be.equal("WTK");
               const tokIds = await ethWrapper.getAllTokenIds();
               expect(tokIds).to.have.length(1);
               tokenAddress = tkAddr;

@@ -80,7 +80,7 @@ const TableClaim = ({ mockData }) => {
                         <div className="please-confirm">
                             <Typography
                                 id="modal-modal-title"
-                                variant="h6"
+                                variant="h3"
                                 component="h2"
                             >
                                 Please Confirm
