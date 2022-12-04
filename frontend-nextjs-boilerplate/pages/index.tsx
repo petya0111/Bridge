@@ -25,32 +25,30 @@ function Home() {
             </Head>
             <Header></Header>
             <main>
-                {isConnected && (
-                    <section>
-                        <NativeCurrencyBalance />
+                <section>
+                    <NativeCurrencyBalance />
 
-                        <TokenBalance
-                            tokenAddress={ALBT_TOKEN_ADDRESS}
-                            symbol="ALBT"
-                        />
-                        <div>
-                            <h1>
-                                This is{" "}
-                                <a href="https://github.com/petya0111/Bridge">
-                                    ERC20 Token Bridge
-                                </a>{" "}
-                            </h1>
-                            <h4>
-                                You can use this bridge to transfer tokens
-                                between EVM based networks
-                            </h4>
-                            <h2>Start Bridging</h2>
-                            <Link href="/transfer" prefetch={isConnected}>
-                                <button>Transfer</button>
-                            </Link>
-                        </div>
-                    </section>
-                )}
+                    <TokenBalance
+                        tokenAddress={ALBT_TOKEN_ADDRESS}
+                        symbol="ALBT"
+                    />
+                    <div>
+                        <h1>
+                            This is{" "}
+                            <a href="https://github.com/petya0111/Bridge">
+                                ERC20 Token Bridge
+                            </a>{" "}
+                        </h1>
+                        <h4>
+                            You can use this bridge to transfer tokens between
+                            EVM based networks
+                        </h4>
+                        <h2>Start Bridging</h2>
+                        <Link href="/transfer" prefetch={isConnected}>
+                            <button>Transfer</button>
+                        </Link>
+                    </div>
+                </section>
             </main>
 
             <style jsx>{`
