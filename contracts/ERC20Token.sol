@@ -24,4 +24,13 @@ contract ERC20Token is ITokenBase, ERC20, ERC20Burnable, Ownable {
         _mint(to, amount);
         emit LogERC20Minted(to, amount);
     }
+
+    function getTokenSymbol(address tokenAddresss)
+        public
+        view
+        returns (string memory)
+    {
+        string memory symbol = ERC20(tokenAddresss).symbol();
+        return symbol;
+    }
 }

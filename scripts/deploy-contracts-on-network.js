@@ -85,7 +85,7 @@ async function deployContractsOnNetwork() {
         constructorArguments: [],
     });
     await hre.run("verify:verify", {
-        address: ERC20Token.address,
+        address: ERC20TokenContract.address,
         constructorArguments: ["LimeERC", "LRC", deployer.address],
     });
     await hre.run("verify:verify", {

@@ -279,6 +279,25 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "tokenAddresss",
+        "type": "address"
+      }
+    ],
+    "name": "getTokenSymbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "spender",
         "type": "address"
       },

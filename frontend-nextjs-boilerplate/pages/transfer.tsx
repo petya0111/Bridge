@@ -2,7 +2,10 @@ import type { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "./_app";
 import { useContext, useState, useEffect, useCallback } from "react";
+
 import {
+    ERC20_TOKEN_GOERLI_ADDRESS,
+    ERC20_TOKEN_MUMBAI_ADDRESS,
     ETH_WRAPPER_GOERLI_ADDRESS,
     ETH_WRAPPER_MUMBAI_ADDRESS,
     supportedChains,
@@ -24,7 +27,7 @@ import { Box } from "@mui/system";
 import useBridgeContract from "../hooks/useBridgeContract";
 import useETHWrapperContract from "../hooks/useETHWrapperContract";
 import useTokenBalance from "../hooks/useTokenBalance";
-import useIERC20TokenContract from "../hooks/useIERC20Contract";
+import useERC20TokenContract from "../hooks/useERC20TokenContract";
 type BookContract = {
     contractAddress: string;
 };
@@ -40,8 +43,9 @@ const transfer = () => {
             : ETH_WRAPPER_MUMBAI_ADDRESS
     );
     const [currentToken, setCurrentToken] = useState("");
-    const ierc = useIERC20TokenContract(currentToken);
-    const router = useRouter();
+    const ercTokenContract = useERC20TokenContract(chainId == (5 ?? 5)
+    ? ERC20_TOKEN_GOERLI_ADDRESS
+    : ERC20_TOKEN_MUMBAI_ADDRESS);
     const [open, setOpen] = useState<boolean | undefined>(false);
     const options = ["WETH", "ERC20"];
     const [modalData, setModalData] = useState(null);
@@ -54,15 +58,13 @@ const transfer = () => {
     const checkPresentedTokens = async () => {
         const tokens = await ethWrapperContract?.getAllTokenIds();
         if (tokens?.length > 0) {
-            // let arr = [];
-            // for (let t of tokens) {
-            //     // setCurrentToken(t);
-            //     const sym = await ierc?.symbol();
-            //     console.log(sym, "sym");
-            //     arr.push(sym);
-            // }
-            setPresentedTokens(tokens);
-            console.log("currentToken",presentedTokens);
+            let arr = [];
+            for (let t of tokens) {
+                const sym = await ercTokenContract?.getTokenSymbol(t);
+                console.log(sym, "sym");
+                arr.push(sym);
+            }
+            setPresentedTokens(arr);
         }
         console.log(tokens);
     };
