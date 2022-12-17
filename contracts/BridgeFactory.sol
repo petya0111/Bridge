@@ -22,6 +22,7 @@ contract BridgeBase is IBridgeBase, Ownable {
         address tokenAddress,
         uint256 amount
     );
+    event LogTokenCreated(address indexed token);
     event LogMint(address indexed receiver, address token, uint256 amount);
     event LogBurn(
         address indexed from,
@@ -60,10 +61,10 @@ contract BridgeBase is IBridgeBase, Ownable {
         ERC20Token wrappedTokenContract = ethWrapper.getTokenContractAddress(
             _wrappedToken
         );
-        // require(
-        //     address(wrappedTokenContract) != address(0),
-        //     "Wrapped Token is not existing"
-        // );
+        require(
+            address(wrappedTokenContract) != address(0),
+            "Wrapped Token is not existing"
+        );
         wrappedTokenContract.mint(_receiver, _amount);
 
         emit LogMint(_receiver, _wrappedToken, _amount);
@@ -102,7 +103,8 @@ contract BridgeBase is IBridgeBase, Ownable {
         external
         override
     {
-        ethWrapper.initiateToken(_name, _symbol);
+        ERC20Token wToken = ethWrapper.initiateToken(_name, _symbol);
+        emit LogTokenCreated(address(wToken));
     }
 
     function setTokensForClaim(

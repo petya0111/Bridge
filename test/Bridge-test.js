@@ -52,7 +52,33 @@ const { developmentChains } = require("../hardhat.config");
               );
               wBridgeToken = wrappedErc20Token;
           });
-          it("Should create and lock unlock erc20 token", async () => {
+          it("Bridge should burn the wrapped token", async () => {
+              const tx = await bridge.createToken("WBridgeToken", "WBT");
+
+              const receipt = await tx.wait();
+              let w20Token = receipt.events[0].address;
+              await expect(
+                  bridge.mint(
+                      bridge.address,
+                      TOKEN_AMOUNT,
+                      ethers.constants.AddressZero
+                  )
+              ).to.be.rejectedWith("Wrapped Token is not existing");
+              await ethWrapper.approve(w20Token, bridge.address, TOKEN_AMOUNT);
+              const approve = await ethWrapper.increaseAllowance(
+                  w20Token,
+                  bridge.address,
+                  TOKEN_AMOUNT
+              );
+              await approve.wait();
+              const burn = await expect(
+                  bridge.connect(admin).burn(5, w20Token, TOKEN_AMOUNT, {
+                      value: serviceFee,
+                  })
+              ).to.be.revertedWith("ERC20: insufficient allowance");
+            //   await burn.wait(1);
+          });
+          it("Should create and lock, unlock & burn erc20 token", async () => {
               let erc20Factory = await ethers.getContractFactory("ERC20Token");
               let extraToken = await erc20Factory.deploy(
                   "ExtraToken",
@@ -85,11 +111,7 @@ const { developmentChains } = require("../hardhat.config");
                       .connect(admin)
                       .release(TOKEN_AMOUNT, erc20ExtraToken)
               ).to.emit(bridge, "LogRelease");
-            //   expect(await bridge
-            //       .connect(admin)
-            //       .burn(5, erc20ExtraToken,TOKEN_AMOUNT, {
-            //           value: serviceFee,
-            //       })).to.emit(bridge,"LogBurn");
+              await extraToken.connect(admin).burn(TOKEN_AMOUNT);
           });
 
           it("Should reject locking token, not enough service fee", async () => {
@@ -150,7 +172,7 @@ const { developmentChains } = require("../hardhat.config");
               //       TOKEN_AMOUNT
               //   );
 
-             await expect(
+              await expect(
                   bridge.burn(5, wBridgeToken, TOKEN_AMOUNT, {
                       value: serviceFee,
                   })
