@@ -1,10 +1,5 @@
-import type { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
 import { Web3Context } from "../pages/_app";
-import { useContext, useState, useEffect, useCallback } from "react";
-import useBookLibraryContract from "../hooks/useBookLibraryContract";
-import { ALBT_TOKEN_ADDRESS } from "../constants";
-import { useRouter } from "next/router";
+import { useContext, useEffect } from "react";
 import Header from "./header";
 import TableClaim from "../components/TableClaim";
 

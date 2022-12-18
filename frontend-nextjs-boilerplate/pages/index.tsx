@@ -3,7 +3,7 @@ import Head from "next/head";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
 import { useRouter } from "next/router";
-import { ALBT_TOKEN_ADDRESS, BOOK_LIBRARY_ADDRESS } from "../constants";
+import { ALBT_TOKEN_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 import Header from "./header";
 import Link from "next/link";
