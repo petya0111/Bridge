@@ -40,7 +40,7 @@ export type Web3Action =
       }
     | { type: "fetching"; transactionHash?: string }
     | { type: "transfermodalfetching"; transactionHash?: string }
-    | { type: "transfermodalfetched"; transactionHash?: string }
+    | { type: "transfermodalfetched"; transactionHash?: string; message?: string; messageType?: AlertColor }
     | { type: "fetched"; messageType?: AlertColor; message?: string }
     | { type: "removeMessage" };
 

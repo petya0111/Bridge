@@ -25,15 +25,28 @@ function Header() {
             <header>
                 <nav>
                     <Button>
-                        <Link href={`/transfer`}>
-                            Transfer
-                        </Link>
+                        <Link href={`/transfer`}>Transfer</Link>
                     </Button>
                     <Button>
-                        <Link href={`/claim`}>
-                            Claim
-                        </Link>
+                        <Link href={`/claim`}>Claim</Link>
                     </Button>
+                    {/* {Number(connectedChain.id) != 80001 ? (
+                        <Button
+                            onClick={async () => {
+                                await setChain({ chainId: "0x13881" }); // hexadecimal mumbai network
+                            }}
+                        >
+                            Change to Mumbai
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={async () => {
+                                await setChain({ chainId: "0x5" }); // hexadecimal goerli network
+                            }}
+                        >
+                            Change to Goerli
+                        </Button>
+                    )} */}
 
                     <Account triedToEagerConnect={triedToEagerConnect} />
                 </nav>

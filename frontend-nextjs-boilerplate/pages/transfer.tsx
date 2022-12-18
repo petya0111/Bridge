@@ -90,40 +90,29 @@ const transfer = () => {
             });
             const approveReceipt = await approve.wait();
             if (approveReceipt.status === 1) {
-                const mint = await ercTokenContract.mint(
-                    bridgeAddress,
-                    modalData.amount
+                const tx = await brdigeContract.lockToken(
+                    targetChain.chainId,
+                    modalData.tokenAddress,
+                    modalData.amount,
+                    { value: ethers.utils.parseEther("0.005") }
                 );
                 dispatch({
                     type: "transfermodalfetching",
-                    transactionHash: mint.hash,
+                    transactionHash: tx.hash,
                 });
-                const mintReceipt = await mint.wait();
-                if (mintReceipt.status === 1) {
-                    const tx = await brdigeContract.lockToken(
-                        targetChain.chainId,
-                        modalData.tokenAddress,
-                        modalData.amount,
-                        { value: ethers.utils.parseEther("0.005") }
-                    );
+                const transactionReceipt = await tx.wait();
+                if (transactionReceipt.status === 1) {
                     dispatch({
-                        type: "transfermodalfetching",
-                        transactionHash: tx.hash,
+                        type: "fetched",
+                        messageType: "success",
+                        message: `Locked token from bridge ${modalData.tokenNameOrAddress}`,
                     });
-                    const transactionReceipt = await tx.wait();
-                    if (transactionReceipt.status === 1) {
-                        dispatch({
-                            type: "fetched",
-                            messageType: "success",
-                            message: `Locked token from bridge ${modalData.tokenNameOrAddress}`,
-                        });
-                    } else {
-                        dispatch({
-                            type: "transfermodalfetched",
-                            messageType: "error",
-                            message: JSON.stringify(transactionReceipt),
-                        });
-                    }
+                } else {
+                    dispatch({
+                        type: "transfermodalfetched",
+                        messageType: "error",
+                        message: JSON.stringify(transactionReceipt),
+                    });
                 }
             }
         } catch (e) {
